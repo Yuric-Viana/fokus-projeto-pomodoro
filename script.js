@@ -7,12 +7,18 @@ const cardTemporizador = document.querySelector('#timer');
 const tituloPage = document.querySelector('.app__title');
 const banner = document.querySelector('.app__image');
 const botoes = document.querySelectorAll('.app__card-button');
+const musicaFocoInput = document.getElementById('alternar-musica');
+const musica = new Audio('/sons/luna-rise-part-one.mp3');
 const duranteFoco = 1500;
 const duracaoDescansoCurto = 300;
 const duracaoDescansoLongo = 900;
 
-pausaPomodoro.addEventListener('click', () => {
-
+musicaFocoInput.addEventListener('change', () => {
+    if(musica.paused) {
+        musica.play();
+    } else {
+        musica.pause();
+    }
 })
 
 focoBt.addEventListener('click', () => {
