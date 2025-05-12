@@ -3,13 +3,20 @@ const formAdicionarTarefa = document.querySelector('.app__form-add-task');
 const textArea = document.querySelector('.app__form-textarea');
 const modalAria = document.querySelector('form');
 const ulTarefas = document.querySelector('.app__section-task-list');
+const cancelarNovaTarefa = document.querySelector('.app__form-footer__button--cancel');
+const tarefaEmAndamento = document.querySelector('.app__section-active-task-description');
 
 const tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
+let tarefaSelecionada = null;
+
+function atualizarTarefa() {
+    localStorage.setItem('tarefas', JSON.stringify(tarefas));
+}
 
 function criarElementoTarefa(tarefa) {
     const itemTarefa = document.createElement('li');
-    itemTarefa.classList.add('app_section-task-list-item');
-    itemTarefa.style = 'display: flex; align-items: center; background-color: #808080; color: #01080E; padding: 1.5em; gap: 1em; border-radius: 10px; margin-bottom: 1em;';
+    itemTarefa.classList.add('app__section-task-list-item');
+    
 
     const svg = document.createElement('svg');
     svg.innerHTML = `
@@ -20,13 +27,35 @@ function criarElementoTarefa(tarefa) {
     `
 
     const paragrafo = document.createElement('p');
-    paragrafo.classList.add('app_section-task-list-item-description');
-    paragrafo.style = 'font-size: 18px; font-weight: 600; font-family: var(--font-family);'
+    paragrafo.classList.add('app__section-task-list-item-description');
     paragrafo.textContent = tarefa.descricao;
 
     const botao = document.createElement('button');
     botao.classList.add('app_button-edit');
     botao.style = 'margin-left: auto'
+
+    botao.onclick = () => {
+        let novaDescricao;
+
+        do {
+            novaDescricao = prompt('Qual o novo nome da tarefa?');
+
+            if(novaDescricao == null) {
+                return;
+            }
+
+            novaDescricao = novaDescricao.trim();
+
+            if(novaDescricao == '') {
+                alert ('Um novo nome deve ser criado.');
+            }
+        } while (novaDescricao == '');
+
+        paragrafo.textContent = novaDescricao;
+        tarefa.descricao = novaDescricao;
+        atualizarTarefa();
+    }
+
     const imgBotao = document.createElement('img');
     imgBotao.setAttribute('src', '/imagens/localStorage/edit.png');
     botao.append(imgBotao);
@@ -34,6 +63,21 @@ function criarElementoTarefa(tarefa) {
     itemTarefa.append(svg);
     itemTarefa.append(paragrafo);
     itemTarefa.append(botao);
+
+    itemTarefa.onclick = () => {
+        document.querySelectorAll('.app__section-task-list-item-active')
+            .forEach(elemento => {
+                elemento.classList.remove('app__section-task-list-item-active');
+            });
+        if(tarefaSelecionada == tarefa) {
+            tarefaEmAndamento.textContent = '';
+            tarefaSelecionada = null;
+            return;
+        }
+        tarefaSelecionada = tarefa;
+        tarefaEmAndamento.textContent = tarefa.descricao;
+        itemTarefa.classList.add('app__section-task-list-item-active')
+    }
 
     return itemTarefa;
 
@@ -50,17 +94,33 @@ formAdicionarTarefa.addEventListener('submit', (evento) => {
     const tarefa = {
         descricao: textArea.value
     }
-
+    
     tarefas.push(tarefa);
+
     const criarItemTarefa = criarElementoTarefa(tarefa);
     ulTarefas.append(criarItemTarefa);
-    localStorage.setItem('tarefas', JSON.stringify(tarefas));
+    
+    atualizarTarefa();
     criarElementoTarefa(tarefa);
 
-    
+    textArea.value = '';
+    formAdicionarTarefa.classList.add('hidden');
+
+})
+
+textArea.addEventListener('keypress', (e) => { 
+        if(e.key == 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            formAdicionarTarefa.requestSubmit();
+        }
 })
 
 tarefas.forEach(tarefa => {
     const elementoTarefa = criarElementoTarefa(tarefa);
     ulTarefas.append(elementoTarefa);
 });
+
+cancelarNovaTarefa.addEventListener('click', () => {
+    textArea.value = '';
+    formAdicionarTarefa.classList.add('hidden');    
+})
