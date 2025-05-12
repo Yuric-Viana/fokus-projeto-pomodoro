@@ -150,19 +150,15 @@ document.addEventListener('FocoFinalizado', () => {
 })
 
 
-btnRemoverConcluida.onclick = () => {
-    const seletor = '.app__section-task-list-item-complete'
+const removeTarefas = (somenteCompletas) => {
+    const seletor = somenteCompletas ? '.app__section-task-list-item-complete' : '.app__section-task-list-item'
     document.querySelectorAll(seletor).forEach(elemento => {
         elemento.remove();
     })
-    tarefas = tarefas.filter(tarefa => !tarefa.completa); 
+    tarefas = somenteCompletas ? tarefas.filter(tarefa => !tarefa.completa) : [];
     atualizarTarefa();
 }
 
-btnRemoverTodas.onclick = () => {
-    const seletorTodasTarefas = '.app__section-task-list-item'
-    document.querySelectorAll(seletorTodasTarefas).forEach(elemento => {
-        elemento.remove();
-    })
-    atualizarTarefa();
-}
+btnRemoverConcluida.onclick = () => removeTarefas(true);
+btnRemoverTodas.onclick = () => removeTarefas(false);
+
