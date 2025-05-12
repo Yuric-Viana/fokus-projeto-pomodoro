@@ -5,8 +5,12 @@ const modalAria = document.querySelector('form');
 const ulTarefas = document.querySelector('.app__section-task-list');
 const cancelarNovaTarefa = document.querySelector('.app__form-footer__button--cancel');
 const tarefaEmAndamento = document.querySelector('.app__section-active-task-description');
+const limparTodasAsTarefas = document.getElementById('btn-remover-todas');
 
-const tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
+const btnRemoverConcluida = document.getElementById('btn-remover-concluidas');
+const btnRemoverTodas = document.getElementById('btn-remover-todas');
+
+let tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
 
 let tarefaSelecionada = null;
 let liTarefaSelecionada = null;
@@ -36,7 +40,8 @@ function criarElementoTarefa(tarefa) {
     botao.classList.add('app_button-edit');
     botao.style = 'margin-left: auto'
 
-    botao.onclick = () => {
+    botao.onclick = (event) => {
+        event.stopPropagation();
         let novaDescricao;
 
         do {
@@ -81,7 +86,7 @@ function criarElementoTarefa(tarefa) {
                 liTarefaSelecionada = null;
                 return;
             }
-    
+            
             tarefaSelecionada = tarefa;
             liTarefaSelecionada = itemTarefa;
             tarefaEmAndamento.textContent = tarefa.descricao;
@@ -111,7 +116,6 @@ formAdicionarTarefa.addEventListener('submit', (evento) => {
     ulTarefas.append(criarItemTarefa);
     
     atualizarTarefa();
-    criarElementoTarefa(tarefa);
 
     textArea.value = '';
     formAdicionarTarefa.classList.add('hidden');
@@ -144,3 +148,21 @@ document.addEventListener('FocoFinalizado', () => {
         atualizarTarefa();
     }
 })
+
+
+btnRemoverConcluida.onclick = () => {
+    const seletor = '.app__section-task-list-item-complete'
+    document.querySelectorAll(seletor).forEach(elemento => {
+        elemento.remove();
+    })
+    tarefas = tarefas.filter(tarefa => !tarefa.completa); 
+    atualizarTarefa();
+}
+
+btnRemoverTodas.onclick = () => {
+    const seletorTodasTarefas = '.app__section-task-list-item'
+    document.querySelectorAll(seletorTodasTarefas).forEach(elemento => {
+        elemento.remove();
+    })
+    atualizarTarefa();
+}
